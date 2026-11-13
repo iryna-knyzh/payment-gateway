@@ -1,0 +1,30 @@
+framework:
+    workflows:
+        # Payment lifecycle as a state machine.
+        # Illegal transitions (e.g. "succeeded" -> "failed" when webhooks arrive
+        # out of order) are rejected by the workflow instead of if/else checks.
+        payment:
+            type: state_machine
+            audit_trail:
+                enabled: true
+            marking_store:
+                type: method
+                property: status
+            supports:
+                - App\Entity\Payment
+            initial_marking: new
+            places:
+                - new
+                - processing
+                - succeeded
+                - failed
+            transitions:
+                submit:
+                    from: new
+                    to: processing
+                succeed:
+                    from: processing
+                    to: succeeded
+                fail:
+                    from: [new, processing]
+                    to: failed

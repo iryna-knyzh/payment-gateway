@@ -1,0 +1,23 @@
+stages:
+    - test
+
+default:
+    image: php:8.3-cli
+    before_script:
+        - apt-get update -qq && apt-get install -y -qq git unzip > /dev/null
+        - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+        - composer install --no-interaction --no-progress --prefer-dist
+    cache:
+        key:
+            files: [composer.lock]
+        paths: [vendor/]
+
+phpunit:
+    stage: test
+    script:
+        - vendor/bin/phpunit
+
+phpstan:
+    stage: test
+    script:
+        - vendor/bin/phpstan analyse --no-progress --memory-limit=512M

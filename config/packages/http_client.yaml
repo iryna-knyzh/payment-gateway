@@ -1,0 +1,25 @@
+framework:
+    http_client:
+        scoped_clients:
+            # One scoped client per provider: own base URI, credentials and timeouts.
+            # base_uri MUST end with "/" and request paths must NOT start with "/":
+            # per RFC 3986 "/v1/charges" would replace the "/fakebank/" part of the base URI.
+            fakebank.client:
+                base_uri: '%env(FAKEBANK_BASE_URI)%'
+                auth_bearer: '%env(FAKEBANK_API_KEY)%'
+                headers:
+                    Accept: 'application/json'
+                timeout: 5        # idle timeout, seconds
+                max_duration: 10  # hard limit for the whole request
+            quickpay.client:
+                base_uri: '%env(QUICKPAY_BASE_URI)%'
+                headers:
+                    Accept: 'application/json'
+                timeout: 5
+                max_duration: 10
+
+when@test:
+    framework:
+        http_client:
+            # Every HTTP call in tests goes to this fake instead of the network.
+            mock_response_factory: App\Tests\Support\MockProviderApi
